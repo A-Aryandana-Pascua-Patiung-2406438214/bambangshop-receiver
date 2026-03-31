@@ -85,5 +85,21 @@ This is the place for you to write reflections:
 ### Mandatory (Subscriber) Reflections
 
 #### Reflection Subscriber-1
+1. Penggunaan mekanisme sinkronisasi seperti RwLock atau Mutex sangat diperlukan di Rust saat kita memiliki variabel statis yang bisa diubah (mutable) karena variabel tersebut akan diakses oleh banyak thread (dalam hal ini, setiap request yang masuk ke server Rocket berjalan di thread yang berbeda). Tanpa ini, akan terjadi data race yang bisa membuat program crash.
+
+Kita memilih RwLock (Read-Write Lock) alih-alih Mutex karena alasan efisiensi:
+
+- RwLock memungkinkan banyak thread untuk membaca data secara bersamaan selama tidak ada yang menulis. Ini sangat cocok untuk kasus NotificationRepository di mana fungsi list_all_as_string (operasi baca) kemungkinan akan dipanggil lebih sering daripada fungsi add (operasi tulis).
+
+- Mutex bersifat jauh lebih kaku karena hanya mengizinkan satu thread saja yang mengakses data, baik itu untuk membaca maupun menulis. Jika kita memakai Mutex, maka saat satu orang sedang melihat daftar notifikasi, orang lain tidak bisa mendaftarkan notifikasi baru, yang mana hal ini akan menghambat performa aplikasi.
+
+2. Di Java, variabel statis disimpan di heap dan pengelolaannya diserahkan ke JVM, namun Java tidak menjamin secara compile-time bahwa akses ke variabel tersebut aman dari thread lain (kita harus manual menambahkan synchronized).
+
+Di Rust:
+- Variabel static harus memiliki ukuran yang pasti saat compile-time dan harus bersifat thread-safe (Sync).
+
+- Mengubah variabel statis secara langsung dianggap unsafe karena Rust tidak bisa menjamin bahwa tidak ada dua thread yang mengubah data yang sama di waktu yang bersamaan.
+
+- lazy_static digunakan karena ia melakukan inisialisasi variabel pada saat runtime (ketika pertama kali diakses), bukan compile-time. Dengan membungkusnya dalam lazy_static dan struktur sinkronisasi (RwLock/DashMap), kita memberikan jaminan kepada compiler bahwa akses ke data global tersebut dikelola dengan aman secara thread-safe, sesuai dengan aturan ownership dan borrowing Rust.
 
 #### Reflection Subscriber-2

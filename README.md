@@ -103,3 +103,11 @@ Di Rust:
 - lazy_static digunakan karena ia melakukan inisialisasi variabel pada saat runtime (ketika pertama kali diakses), bukan compile-time. Dengan membungkusnya dalam lazy_static dan struktur sinkronisasi (RwLock/DashMap), kita memberikan jaminan kepada compiler bahwa akses ke data global tersebut dikelola dengan aman secara thread-safe, sesuai dengan aturan ownership dan borrowing Rust.
 
 #### Reflection Subscriber-2
+1. Jujur saya belum mengeksplorasi isi dari src/lib.rs secara mendalam. Alasan utamanya adalah karena saya memilih untuk fokus sepenuhnya pada instruksi yang ada di modul tutorial guna memastikan implementasi Observer Pattern di bagian Model, Service, Repository, dan Controller berjalan dengan benar sesuai kriteria penilaian. Karena materi ini cukup kompleks, saya memprioritaskan pemahaman alur kerja utama aplikasi (proses subscribe dan notify) sebelum mempelajari file konfigurasi atau modul pendukung lainnya yang ada di luar langkah-langkah wajib.
+
+2. 
+- Menambah Subscriber: Observer pattern sangat memudahkan penambahan subscriber karena adanya Loose Coupling. Publisher tidak perlu tahu detail internal dari setiap Receiver; selama Receiver memiliki endpoint yang sesuai, kita bisa menambah puluhan instance baru tanpa mengubah satu baris kode pun di Main App.
+
+- Menambah Main App (Multiple Publishers): Untuk saat ini, menjalankan lebih dari satu Main App tidak akan mudah. Hal ini dikarenakan daftar subscriber disimpan di dalam memori (DashMap di dalam RAM). Jika kita punya dua Main App, subscriber yang mendaftar ke App A tidak akan diketahui oleh App B. Agar bisa mendukung banyak instance Main App, kita harus memindahkan penyimpanan subscriber ke database terpusat (seperti PostgreSQL) atau menggunakan message broker (seperti Redis).
+
+3. Ya, saya mencoba mengeksplorasi fitur Postman. Fitur ini sangat membantu dalam memverifikasi respon API secara otomatis tanpa harus melakukan pengecekan manual satu per satu. Penggunaan Postman Collection juga sangat bermanfaat untuk dokumentasi yang bisa dibagikan kepada anggota tim lain (terutama tim Frontend). Hal ini sangat krusial dalam pengerjaan Proyek Kelompok (PPL) agar integrasi antar bagian aplikasi bisa berjalan lebih cepat dan meminimalisir kesalahan komunikasi terkait format data.
